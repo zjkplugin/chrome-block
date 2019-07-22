@@ -1,7 +1,7 @@
 (function(){
   var config = {
-    whiteList: [], // 白名单 优先级 1
-    blackList: [], // 黑名单 优先级 2
+    white_list: [], // 白名单 优先级 1
+    black_list: [], // 黑名单 优先级 2
   };
 
   init();
@@ -24,15 +24,16 @@
     //监听所有请求
     chrome.webRequest.onBeforeRequest.addListener((details) => {
           var url = details.url;
-          if(config.whiteList.length > 0){
-            var isWhite = config.whiteList.findIndex(item => url.match(new RegExp(item.replace(/\*/g, '.*'),'ig'))) != -1;
-            return { cancel: !isWhite };
+          if(config.whiteable && config.white_list.length > 0){
+            var isWhite = config.white_list.findIndex(item => url.match(new RegExp(item.replace(/\*/g, '.*'),'ig'))) != -1;
+            console.log(isWhite, url)
+            return { cancel: !isWhite }
           }
-          if(config.blackList.length > 0){
-            var isBlack = config.blackList.findIndex(item => url.match(new RegExp(item.replace(/\*/g, '.*'),'ig'))) != -1;
+          if(config.blackable && config.black_list.length > 0){
+            var isBlack = config.black_list.findIndex(item => url.match(new RegExp(item.replace(/\*/g, '.*'),'ig'))) != -1;
+            console.log(isBlack, url)
             return { cancel: isBlack };
           }
-
           return { cancel: false }
       }, 
       { urls: ["<all_urls>"] }, 
@@ -51,14 +52,18 @@
   }
 
   function getData(){
-    post('http://192.168.82.101:8071/test', {}, (res) => {
+    post('http://192.168.82.101:8071/plugin/block', {}, (res) => {
       if(res.code !== 'SUCCESS'){
         console.log(res);
         return;
       }
+      if(!res.data){
+        return;
+      }
       config = res.data;
+      config.white_list = config.white_list.split(',');
+      config.black_list = config.black_list.split(',');
       console.log(config)
-      // config.blackList.push('*google.com*');
     }, (error) => {
       console.log(error);
     });
