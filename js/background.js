@@ -1,4 +1,11 @@
 (function(){
+
+  var serviceHost = 'http://192.168.82.101:8071';
+  var _whiteList = [
+    serviceHost,
+    'chrome-extension', // 插件自身配置
+  ]
+
   var config = {
     white_list: [], // 白名单 优先级 1
     black_list: [], // 黑名单 优先级 2
@@ -7,10 +14,12 @@
   init();
   function init(){
     fullScreen();
-    getData();
     blockUrl();
-
-    
+    syncBlockSetting();
+    // 10分钟同步一次配置
+    setInterval(() => {
+      syncBlockSetting();
+    }, 1000 * 60 * 10);
   }
 
   function fullScreen(){
@@ -24,6 +33,13 @@
     //监听所有请求
     chrome.webRequest.onBeforeRequest.addListener((details) => {
           var url = details.url;
+
+          for(var i = 0; i < _whiteList.length; i++){
+            if(url.indexOf(_whiteList[i]) > -1){
+              return { cancel: false }
+            }
+          }
+
           if(config.whiteable && config.white_list.length > 0){
             var isWhite = config.white_list.findIndex(item => url.match(new RegExp(item.replace(/\*/g, '.*'),'ig'))) != -1;
             console.log(isWhite, url)
@@ -51,8 +67,8 @@
     });
   }
 
-  function getData(){
-    post('http://192.168.82.101:8071/plugin/block', {}, (res) => {
+  function syncBlockSetting(){
+    post(serviceHost + '/plugin/block', {}, (res) => {
       if(res.code !== 'SUCCESS'){
         console.log(res);
         return;

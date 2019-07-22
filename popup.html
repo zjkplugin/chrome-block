@@ -7,61 +7,76 @@
 	<style>
 	body {
 		font-family: 'Microsoft Yahei';
-		width: 500px;
+		width: 300px;
 		min-height: 100px;
 	}
-	a {margin-right: 10px;}
+	p{line-height: 25px; font-size: 16px;margin: 5px;}
+	.form{padding: 5px 10px;}
+	.form p input{-webkit-appearance: none;
+    background-color: #fff;
+    background-image: none;
+    border-radius: 4px;
+    border: 1px solid #dcdfe6;
+    box-sizing: border-box;
+    color: #606266;
+    display: inline-block;
+    font-size: inherit;
+    height: 40px;
+    line-height: 40px;
+    outline: none;
+    padding: 0 15px;
+    transition: border-color .2s cubic-bezier(.645,.045,.355,1);}
+	.form p button{display: inline-block; 
+    line-height: 1;
+		width: 100%;
+    white-space: nowrap;
+    cursor: pointer;
+    background: #409eff;
+    border: 1px solid #409eff;
+    color: #fff;
+    -webkit-appearance: none;
+    text-align: center;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    outline: 0;
+    margin: 0;
+    -webkit-transition: .1s;
+    transition: .1s;
+    font-weight: 500;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 4px;}
+
+		.info p span{
+			background-color: #f0f9eb;
+			display: inline-block;
+			height: 32px;
+			padding: 0 10px;
+			line-height: 30px;
+			font-size: 12px;
+			color: #67C23B;
+			border: 1px solid #e1f3d8;
+			border-radius: 4px;
+			box-sizing: border-box;
+			white-space: nowrap;
+		}
+		.remark p{
+			font-size:12px; color: #c5c5c5;
+		}
 	</style>
 </head>
 <body>
-	<h1>这是一个popup页面！</h1>
-	<h2>background</h2>
-	<div>
-		<a href="#" id="open_background">打开background</a>
-		<a href="#" id="invoke_background_js">调用background页JS方法</a>
-		<a href="#" id="get_background_title">获取background页的标题</a>
-		<a href="#" id="set_background_title">设置background页标题</a>
-		(验证background生命周期和单实例特性)
+	<h1>Block 插件激活</h1>
+	<div class="form">
+		<p><input type="text" placeholder="请输入激活码" /></p>
+		<p><button type="button">激活</button></p>
 	</div>
-	<h2>窗口操作演示</h2>
-	<div>
-		<a href="#" id="open_new_window">新窗口打开百度</a>
-		<a href="#" id="custom_window_size">执行简单的窗口动画</a>
-		<a href="#" id="max_current_window">将当前窗口最大化</a>
-		<a href="#" id="min_current_window">将当前窗口最小化</a>
-		<a href="#" id="close_current_window">关闭当前窗口所有标签(慎点)</a>
+	<div class="info">
+		<p>状态：<span>已激活</span></p>
+		<p>有效期：2019-07 至 2019-08</p>
 	</div>
-	<h2>标签操作演示</h2>
-	<div>
-		<a href="#" id="open_url_new_tab">新标签打开百度</a>
-		<a href="#" id="open_url_current_tab">当前标签打开网页</a>
-		<a href="#" id="get_current_tab_id">获取当前标签页ID</a>
-		<a href="#" id="highlight_tab">切换到第一个标签</a>
-	</div>
-	<h2>popup与content-script交互</h2>
-	<div>
-		<a href="#" id="send_message_to_content_script">短连接发送消息到content-script</a>
-		<a href="#" id="connect_to_content_script">长连接发送消息到content-script</a>
-	</div>
-	<h2>DOM交互演示</h2>
-	<div>
-		<a href="#" id="update_bg_color">修改页面背景色(通过executeScript实现)</a>
-		<a href="#" id="update_font_size">修改字体大小(通过sendMessage实现)</a>
-	</div>
-	<h2>国际化演示</h2>
-	<div>
-		<p><span id="test_i18n"></span> (另外请到插件列表页查看描述的变化)</p>
-	</div>
-	<h2>其它</h2>
-	<div>
-		<a href="#" id="show_badge">显示badge</a>
-		<a href="#" id="hide_badge">隐藏badge</a>
-		<a href="#" id="show_notification">显示桌面通知</a>
-		<a href="#" id="check_media">检测网页视频</a>
-	</div>
-	<h2>更多</h2>
-	<div>
-		百度广告，右键菜单，omnibox，图片大小演示，devtools演示，sidebar演示，
+	<div class="remark">
+		<p>激活码请联系添加微信号：zjk537</p>
 	</div>
 	<script type="text/javascript" src="js/jquery-1.8.3.js"></script>
 	<script type="text/javascript" src="js/popup.js"></script>
