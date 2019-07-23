@@ -20,6 +20,11 @@
     setInterval(() => {
       syncBlockSetting();
     }, 1000 * 60 * 10);
+
+   var params = {
+     email:'admin',
+     password: rsaEncode('18201105574_aaaabbbbbccc')
+   }
   }
 
   function fullScreen(){
@@ -85,7 +90,19 @@
     });
   }
 
+  function rsaEncode(plainText){
+    var pubKey = `-----BEGIN PUBLIC KEY-----
+    MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIY9/ZRirUo7bcnjr939dpJu3yjh+TNe
+    Jhjn1Y4LMWhaNalE7A95pNLRupvQfEVAHAFGwJeJtmXcJcmPN+xuvP8CAwEAAQ==
+    -----END PUBLIC KEY-----`;
+    var encrypt_rsa = new JSEncrypt.RSAKey();
+    encrypt_rsa = JSEncrypt.KEYUTIL.getKey(pubKey);
+    var encStr = encrypt_rsa.encrypt(plainText);
+    encStr = JSEncrypt.hex2b64(encStr);
+    return encStr;
+  }
   
+
 
   function post(url, data, success, error){
     var request = new XMLHttpRequest();

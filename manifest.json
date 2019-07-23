@@ -6,6 +6,7 @@
   "description":"网站拦截插件",
   "background": {
     "scripts": [
+      "js/JSEncrypt.js",
       "js/background.js"
     ]
   },
