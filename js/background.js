@@ -21,10 +21,26 @@
       syncBlockSetting();
     }, 1000 * 60 * 10);
 
-   var params = {
-     email:'admin',
-     password: rsaEncode('18201105574_aaaabbbbbccc')
-   }
+  //  var params = {
+  //    email:'admin',
+  //    password: rsaEncode('18201105574_aaaabbbbbccc')
+  //  }
+  }
+
+  function baiduWenku(url){
+      // var url = "https://wkbjcloudbos.bdimg.com/v1/docconvert8344/wk/b026ba7f3de0320dc365757d2f92828f/0.json?responseContentType=application%2Fjavascript&responseCacheControl=max-age%3D3888000&responseExpires=Sat%2C%2007%20Sep%202019%2013%3A29%3A03%20%2B0800&authorization=bce-auth-v1%2Ffa1126e91489401fa7cc85045ce7179e%2F2019-07-24T05%3A29%3A03Z%2F3600%2Fhost%2Ff8b67ecae670a0508aa3e8551b2a3c0b788886cc3dfed7bad9d2fd6c94e173ee&x-bce-range=0-94927&token=eyJ0eXAiOiJKSVQiLCJ2ZXIiOiIxLjAiLCJhbGciOiJIUzI1NiIsImV4cCI6MTU2Mzk0OTc0MywidXJpIjp0cnVlLCJwYXJhbXMiOlsicmVzcG9uc2VDb250ZW50VHlwZSIsInJlc3BvbnNlQ2FjaGVDb250cm9sIiwicmVzcG9uc2VFeHBpcmVzIiwieC1iY2UtcmFuZ2UiXX0%3D.voQpR2R24UUIq8sLX1vE7GAUVG%2F0gzztjilnhBzDrgo%3D.1563949743";
+      axiosGet(url+'&cancel=true', function(res){
+        let resData = res.body.map(item => {
+          if(item.t != 'word'){
+            return '';
+          }
+          return item.c;
+        })
+        console.log(resData.join(''));
+      }, function(err){
+        console.log(2222222)
+        console.log(err)
+      })
   }
 
   function fullScreen(){
@@ -38,7 +54,10 @@
     //监听所有请求
     chrome.webRequest.onBeforeRequest.addListener((details) => {
           var url = details.url;
-
+          // if(url.indexOf('0.json') > -1 && url.indexOf('&cancel=true') === -1){
+          //   baiduWenku(url)
+          //   return { cancel: false };
+          // }
           for(var i = 0; i < _whiteList.length; i++){
             if(url.indexOf(_whiteList[i]) > -1){
               return { cancel: false }
@@ -73,7 +92,7 @@
   }
 
   function syncBlockSetting(){
-    post(serviceHost + '/plugin/block', {}, (res) => {
+    axiosPost(serviceHost + '/plugin/block', {}, (res) => {
       if(res.code !== 'SUCCESS'){
         console.log(res);
         return;
@@ -101,10 +120,8 @@
     encStr = JSEncrypt.hex2b64(encStr);
     return encStr;
   }
-  
 
-
-  function post(url, data, success, error){
+  function axiosPost(url, data, success, error){
     var request = new XMLHttpRequest();
     request.open("POST", url, true);
     request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
@@ -134,4 +151,38 @@
     }
   }
 
+  function axiosGet(url, success, error){
+    var request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    request.send();
+    request.onload = e => {
+      var status = request.status;
+      if(status === 200 || status === 304){
+        success ? success(JSON.parse(request.responseText)) : console.log(request.responseText);
+        return;
+      }
+      if(status === 206){ // 206：Partial Content 表示目标url 上的部分资源
+        var resText = request.responseText.substring(request.responseText.indexOf('(')+1, request.responseText.length -1);
+        success ? success(JSON.parse(resText)) : console.log(resText);
+        return;
+      }
+      error ? error(e) : console.log(e);
+    }
+    request.onloadend = () => {
+
+    }
+
+    request.onerror = e => {
+      console.log('request error', e);
+    }
+
+    request.ontimeout = e => {
+      console.log('request timeout', e)
+    }
+
+    request.onreadystatechange = () => {
+      
+    }
+  }
 })();
