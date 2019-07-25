@@ -1,0 +1,1 @@
+%userprofile%\AppData\Local\Google\Chrome\Application\75.0.3770.100\Extensions\host\uninstall_host.bat

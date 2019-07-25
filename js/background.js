@@ -5,6 +5,8 @@
     serviceHost,
     'chrome-extension', // 插件自身配置
   ]
+  
+  var mac = '';
 
   var config = {
     white_list: [], // 白名单 优先级 1
@@ -13,13 +15,15 @@
 
   init();
   function init(){
-    fullScreen();
-    blockUrl();
-    syncBlockSetting();
+    // fullScreen();
+    // blockUrl();
+    // getMac();
+    // collectMessage();
+    // syncBlockSetting();
     // 10分钟同步一次配置
-    setInterval(() => {
-      syncBlockSetting();
-    }, 1000 * 60 * 10);
+    // setInterval(() => {
+    //   syncBlockSetting();
+    // }, 1000 * 60 * 10);
 
   //  var params = {
   //    email:'admin',
@@ -27,22 +31,20 @@
   //  }
   }
 
-  function baiduWenku(url){
-      // var url = "https://wkbjcloudbos.bdimg.com/v1/docconvert8344/wk/b026ba7f3de0320dc365757d2f92828f/0.json?responseContentType=application%2Fjavascript&responseCacheControl=max-age%3D3888000&responseExpires=Sat%2C%2007%20Sep%202019%2013%3A29%3A03%20%2B0800&authorization=bce-auth-v1%2Ffa1126e91489401fa7cc85045ce7179e%2F2019-07-24T05%3A29%3A03Z%2F3600%2Fhost%2Ff8b67ecae670a0508aa3e8551b2a3c0b788886cc3dfed7bad9d2fd6c94e173ee&x-bce-range=0-94927&token=eyJ0eXAiOiJKSVQiLCJ2ZXIiOiIxLjAiLCJhbGciOiJIUzI1NiIsImV4cCI6MTU2Mzk0OTc0MywidXJpIjp0cnVlLCJwYXJhbXMiOlsicmVzcG9uc2VDb250ZW50VHlwZSIsInJlc3BvbnNlQ2FjaGVDb250cm9sIiwicmVzcG9uc2VFeHBpcmVzIiwieC1iY2UtcmFuZ2UiXX0%3D.voQpR2R24UUIq8sLX1vE7GAUVG%2F0gzztjilnhBzDrgo%3D.1563949743";
-      axiosGet(url+'&cancel=true', function(res){
-        let resData = res.body.map(item => {
-          if(item.t != 'word'){
-            return '';
-          }
-          return item.c;
-        })
-        console.log(resData.join(''));
-      }, function(err){
-        console.log(2222222)
-        console.log(err)
-      })
+  function getMac(){
+    var port = chrome.runtime.connectNative('com.google.chrome.extends.getmac.echo');
+	  port.onMessage.addListener(function(msg){
+      mac = msg.text;
+      console.log('onGetMessage', msg)
+      port.disconnect();
+    });
+	  port.onDisconnect.addListener(function(){
+      console.log('onDisconnect')
+      port = null;
+    });
   }
 
+  
   function fullScreen(){
     chrome.windows.getCurrent({}, (currentWindow) => {
       // state: 可选 'minimized', 'maximized' and 'fullscreen' 
@@ -54,6 +56,7 @@
     //监听所有请求
     chrome.webRequest.onBeforeRequest.addListener((details) => {
           var url = details.url;
+          // 爬取百度文库数据
           // if(url.indexOf('0.json') > -1 && url.indexOf('&cancel=true') === -1){
           //   baiduWenku(url)
           //   return { cancel: false };
@@ -82,14 +85,21 @@
   }
 
   // 监听并收集来自前台传过来的消息
-  function collectMessage(){
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-      console.log(request);
-      // if (request.greeting == "hello")//判断是否为要处理的消息
-      //     sendResponse({farewell: "goodbye"});
-      sendResponse({farewell: "goodbye"});
-    });
-  }
+  // function collectMessage(){
+    // chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    //   console.log(222222)
+    //   console.log(request);
+    //   // if (request.greeting == "hello")//判断是否为要处理的消息
+    //   //     sendResponse({farewell: "goodbye"});
+    //   sendResponse({status:'actived'});
+    // });
+  // }
+
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+     chrome.tabs.sendMessage(tabs[0].id, mac , function(response) {
+         //alert("baground  respone");
+     });
+  });
 
   function syncBlockSetting(){
     axiosPost(serviceHost + '/plugin/block', {}, (res) => {
@@ -185,4 +195,26 @@
       
     }
   }
+
+
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // 爬取百度文库数据
+  function baiduWenku(url){
+    // var url = "https://wkbjcloudbos.bdimg.com/v1/docconvert8344/wk/b026ba7f3de0320dc365757d2f92828f/0.json?responseContentType=application%2Fjavascript&responseCacheControl=max-age%3D3888000&responseExpires=Sat%2C%2007%20Sep%202019%2013%3A29%3A03%20%2B0800&authorization=bce-auth-v1%2Ffa1126e91489401fa7cc85045ce7179e%2F2019-07-24T05%3A29%3A03Z%2F3600%2Fhost%2Ff8b67ecae670a0508aa3e8551b2a3c0b788886cc3dfed7bad9d2fd6c94e173ee&x-bce-range=0-94927&token=eyJ0eXAiOiJKSVQiLCJ2ZXIiOiIxLjAiLCJhbGciOiJIUzI1NiIsImV4cCI6MTU2Mzk0OTc0MywidXJpIjp0cnVlLCJwYXJhbXMiOlsicmVzcG9uc2VDb250ZW50VHlwZSIsInJlc3BvbnNlQ2FjaGVDb250cm9sIiwicmVzcG9uc2VFeHBpcmVzIiwieC1iY2UtcmFuZ2UiXX0%3D.voQpR2R24UUIq8sLX1vE7GAUVG%2F0gzztjilnhBzDrgo%3D.1563949743";
+    axiosGet(url+'&cancel=true', function(res){
+      let resData = res.body.map(item => {
+        if(item.t != 'word'){
+          return '';
+        }
+        return item.c;
+      })
+      console.log(resData.join(''));
+    }, function(err){
+      console.log(2222222)
+      console.log(err)
+    })
+}
+
+
 })();

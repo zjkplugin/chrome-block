@@ -1,4 +1,29 @@
 $(function() {
+	var serviceHost = 'http://192.168.82.101:8071';
+	$('#btnActive').click(e => {
+		$.post(serviceHost+'/plugin/active',{test:'test'}, function(res){
+			console.log(res)
+		})
+	});
+
+	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+      console.log(222222)
+      console.log(request);
+      // if (request.greeting == "hello")//判断是否为要处理的消息
+      //     sendResponse({farewell: "goodbye"});
+      sendResponse({status:'actived'});
+    });
+
+	function getPluginStatus(){
+		chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+			console.log('tabs', tabs)
+			chrome.tabs.sendMessage(tabs[0].id, {type:'GET_STATUS'}, function(res){
+				console.log(res)
+			});
+		});
+	}
+
+
 
 	// 加载设置
 	var defaultConfig = {color: 'white'}; // 默认配置
