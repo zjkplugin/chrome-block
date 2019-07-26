@@ -10,7 +10,19 @@
 		width: 300px;
 		min-height: 100px;
 	}
-	p{line-height: 25px; font-size: 16px;margin: 5px;}
+	p{line-height: 25px; font-size: 16px;margin: 10px 5px 20px;position: relative;}
+	p .msg {display: none;}
+	p.err .msg{
+		color: #f56c6c;
+    font-size: 12px;
+    line-height: 1;
+    padding-top: 4px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+		display: block;
+	}
+	.form p.err input{border-color: #f56c6c;}
 	.form{padding: 5px 10px;}
 	.form p input{-webkit-appearance: none;
     background-color: #fff;
@@ -68,7 +80,10 @@
 <body>
 	<h1>Block 插件激活</h1>
 	<div class="form">
-		<p><input type="text" placeholder="请输入激活码" /></p>
+		<p id="pCode">
+			<input id='txtCode' type="text" placeholder="请输入激活码" />
+			<span class="msg"></span>
+		</p>
 		<p><button id='btnActive' type="button">激活</button></p>
 	</div>
 	<div class="info">

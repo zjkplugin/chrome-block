@@ -15,10 +15,11 @@
 
   init();
   function init(){
+    console.log(window.localStorage.getItem('key'))
     // fullScreen();
     // blockUrl();
-    // getMac();
-    // collectMessage();
+    getMac();
+    // extMessage();
     // syncBlockSetting();
     // 10分钟同步一次配置
     // setInterval(() => {
@@ -34,8 +35,9 @@
   function getMac(){
     var port = chrome.runtime.connectNative('com.google.chrome.extends.getmac.echo');
 	  port.onMessage.addListener(function(msg){
-      mac = msg.text;
-      console.log('onGetMessage', msg)
+      // mac = msg.text;
+      // console.log('onGetMessage', msg)
+      window.localStorage.setItem('mac', msg.text);
       port.disconnect();
     });
 	  port.onDisconnect.addListener(function(){
@@ -56,11 +58,6 @@
     //监听所有请求
     chrome.webRequest.onBeforeRequest.addListener((details) => {
           var url = details.url;
-          // 爬取百度文库数据
-          // if(url.indexOf('0.json') > -1 && url.indexOf('&cancel=true') === -1){
-          //   baiduWenku(url)
-          //   return { cancel: false };
-          // }
           for(var i = 0; i < _whiteList.length; i++){
             if(url.indexOf(_whiteList[i]) > -1){
               return { cancel: false }
@@ -85,21 +82,44 @@
   }
 
   // 监听并收集来自前台传过来的消息
-  // function collectMessage(){
-    // chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    //   console.log(222222)
-    //   console.log(request);
-    //   // if (request.greeting == "hello")//判断是否为要处理的消息
-    //   //     sendResponse({farewell: "goodbye"});
-    //   sendResponse({status:'actived'});
-    // });
-  // }
+  function contentMessage(){
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+      console.log(222222)
+      console.log(request);
+      // if (request.greeting == "hello")//判断是否为要处理的消息
+      //     sendResponse({farewell: "goodbye"});
+      sendResponse({status:'actived'});
+    });
+  }
 
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-     chrome.tabs.sendMessage(tabs[0].id, mac , function(response) {
-         //alert("baground  respone");
-     });
-  });
+  // 监听来自 popup 的消息
+  function extMessage(){
+    chrome.extension.onMessage.addListener(function(request, sender, sendResponse){
+      console.log(request)
+      if(request.cmd === 'TO_ACTIVE'){
+        var params = {
+          code: request.code,
+          mac: mac
+        }
+        axiosPost(serviceHost+'/plugin/active',params, function(res){
+          sendResponse(res);
+        });
+        
+      } else {
+        sendResponse('popup返回值')
+      }
+    })
+  }
+
+  
+
+  // chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+  //   console.log(tabs)
+  //    chrome.tabs.sendMessage(tabs[0].id, {test: 'test'} , function(response) {
+  //        //alert("baground  respone");
+  //       console.log(response)
+  //    });
+  // });
 
   function syncBlockSetting(){
     axiosPost(serviceHost + '/plugin/block', {}, (res) => {
@@ -214,7 +234,22 @@
       console.log(2222222)
       console.log(err)
     })
-}
+  }
 
+  function blockWenku(){
+    //监听所有请求
+    chrome.webRequest.onBeforeRequest.addListener((details) => {
+          var url = details.url;
+          // 爬取百度文库数据
+          if(url.indexOf('0.json') > -1 && url.indexOf('&cancel=true') === -1){
+            baiduWenku(url)
+            return { cancel: false };
+          }
+          return { cancel: false }
+      }, 
+      { urls: ["<all_urls>"] }, 
+      ["blocking"]
+    );
+  }
 
 })();

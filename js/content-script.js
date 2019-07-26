@@ -1,10 +1,10 @@
 // 注意，必须设置了run_at=document_start 此段代码才会生效
 // document.addEventListener('DOMContentLoaded', function(){
-  // $.post('http://wap.jc2.haikr.com.cn/hk-insurance-shop/api/insuranceCommon/getNowTime', function(res){
-	// 	chrome.runtime.sendMessage(res, function(response) {
-  //     console.log('收到来自后台的回复：' + response);
-  //   });
-	// });
+//   $.post('http://wap.jc2.haikr.com.cn/hk-insurance-shop/api/insuranceCommon/getNowTime', function(res){
+// 		chrome.runtime.sendMessage(res, function(response) {
+//       console.log('收到来自后台的回复：' + response);
+//     });
+// 	});
 // });
 // console.log(window.event)
 //   window.addEventListener('beforeunload', function(){
@@ -34,3 +34,11 @@
 // }
 
 // window.onbeforeunload = function() {return "确定要离开此网站吗？"; };
+
+// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+//   console.log(222222)
+//   console.log(request);
+//   // if (request.greeting == "hello")//判断是否为要处理的消息
+//   //     sendResponse({farewell: "goodbye"});
+//   sendResponse({status:'actived'});
+// });

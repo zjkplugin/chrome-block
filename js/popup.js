@@ -1,19 +1,33 @@
+
 $(function() {
 	var serviceHost = 'http://192.168.82.101:8071';
 	$('#btnActive').click(e => {
-		$.post(serviceHost+'/plugin/active',{test:'test'}, function(res){
-			console.log(res)
-		})
+		var params = {
+			macAddr: window.localStorage.getItem('mac'),
+			code: $("#txtCode").val()
+		};
+		if(!params.code){
+			$("#pCode").find('.msg').text('激活码不能为空');
+			$("#pCode").addClass('err');
+			return;
+		}
+		$.post(serviceHost +'/plugin/active', params, function(res){
+			console.log(res);
+		});	
+
+	// 	chrome.extension.sendMessage(msg, function(response) { 
+	// 		console.log(response); 
+	//  });
 	});
 
-	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-      console.log(222222)
-      console.log(request);
-      // if (request.greeting == "hello")//判断是否为要处理的消息
-      //     sendResponse({farewell: "goodbye"});
-      sendResponse({status:'actived'});
-    });
+	$("#txtCode").on('input', e => {
+		$("#pCode").find('.msg').text('');
+		$("#pCode").removeClass('err');
+	})
 
+
+
+	//测试前台掉后台
 	function getPluginStatus(){
 		chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
 			console.log('tabs', tabs)
