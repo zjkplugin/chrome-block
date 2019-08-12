@@ -22,6 +22,7 @@
     left: 0;
 		display: block;
 	}
+	.form{display: none;}
 	.form p.err input{border-color: #f56c6c;}
 	.form{padding: 5px 10px;}
 	.form p input{-webkit-appearance: none;
@@ -59,18 +60,30 @@
     font-size: 14px;
     border-radius: 4px;}
 
+		.info { display: none;}
 		.info p span{
-			background-color: #f0f9eb;
 			display: inline-block;
 			height: 32px;
 			padding: 0 10px;
 			line-height: 30px;
 			font-size: 12px;
-			color: #67C23B;
-			border: 1px solid #e1f3d8;
+			border: 1px solid transparent;
 			border-radius: 4px;
 			box-sizing: border-box;
 			white-space: nowrap;
+			color: #909399;
+			background: #f4f4f5;
+			border-color: #d3d4d6;
+		}
+		.info p .success{
+			background-color: #f0f9eb;
+			color: #67C23B;
+			border-color: #e1f3d8;
+		}
+		.info p .expire{
+			color: #f56c6c;
+			background: #fef0f0;
+			border-color: #fbc4c4;
 		}
 		.remark p{
 			font-size:12px; color: #c5c5c5;
@@ -87,8 +100,8 @@
 		<p><button id='btnActive' type="button">激活</button></p>
 	</div>
 	<div class="info">
-		<p>状态：<span>已激活</span></p>
-		<p>有效期：2019-07 至 2019-08</p>
+		<p>状态：<span class="status">未激活</span></p>
+		<p>有效期：<span class="stime"></span> 至 <span class="stime"></span></p>
 	</div>
 	<div class="remark">
 		<p>激活码请联系添加微信号：zjk537</p>

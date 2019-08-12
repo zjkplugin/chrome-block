@@ -1,37 +1,83 @@
-
 $(function() {
 	var serviceHost = 'http://192.168.82.101:8071';
-	$('#btnActive').click(e => {
-		var params = {
-			macAddr: window.localStorage.getItem('mac'),
-			code: $("#txtCode").val()
-		};
-		if(!params.code){
-			$("#pCode").find('.msg').text('激活码不能为空');
-			$("#pCode").addClass('err');
+
+	var $form = $('.form'), $info = $('.info');
+	bindBlockStatus();
+	initEvents();
+
+	function initEvents(){
+		$('#btnActive').click(e => {
+			var params = {
+				mac_addr: window.localStorage.getItem('mac'),
+				code: $.trim($("#txtCode").val())
+			};
+			if(!params.code){
+				$("#pCode").find('.msg').text('激活码不能为空');
+				$("#pCode").addClass('err');
+				return;
+			}
+			$.post(serviceHost +'/plugin/active', params, function(res){
+				if(res.code != 'SUCCESS'){
+					console.log(res);
+					return;
+				}
+				localStorage.setItem('blockData', JSON.stringify(res.data));
+				$form.hide();
+				$info.addClass('success').show();
+			});	
+
+		// backend 有异步请求时，这里的回调不会等异步请求到结果再触发
+		// 	chrome.extension.sendMessage({type:'TO_ACTIVE', code:}, function(response) { 
+		// 		console.log(response); 
+		//  });
+		});
+
+		$("#txtCode").on('input', e => {
+			$("#pCode").find('.msg').text('');
+			$("#pCode").removeClass('err');
+		})
+	}
+
+	function bindBlockStatus(){
+		var blockData = JSON.parse(localStorage.getItem('blockData'));
+		if(!blockData || !blockData.tokenStr){
+			$form.show();
 			return;
 		}
-		$.post(serviceHost +'/plugin/active', params, function(res){
-			console.log(res);
+		$.post(serviceHost +'/plugin/status', {token: blockData.tokenStr}, function(res){
+			if(res.code != 'SUCCESS'){
+				console.log(res);
+				return;
+			}
+			// 1已激活  2 未激活  3已失效
+			var status = res.data.status;
+			if(status == 2){ 
+				$form.show();
+				localStorage.removeItem('blockData');
+				return;
+			}
+			localStorage.setItem('blockData', JSON.stringify(res.data));
+			$info.find('.stime').text(res.data.start_time);
+			$info.find('.etime').text(res.data.end_time);
+			if(status == 1){
+				$info.find('.status').text('已激活').addClass('success');
+				$info.show();
+				return;
+			}
+			if(status == 3){
+				$info.find('.status').text('已过期').addClass('expire');
+				$info.show();
+				return;
+			}
 		});	
-
-	// 	chrome.extension.sendMessage(msg, function(response) { 
-	// 		console.log(response); 
-	//  });
-	});
-
-	$("#txtCode").on('input', e => {
-		$("#pCode").find('.msg').text('');
-		$("#pCode").removeClass('err');
-	})
-
+	}
 
 
 	//测试前台掉后台
 	function getPluginStatus(){
 		chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
 			console.log('tabs', tabs)
-			chrome.tabs.sendMessage(tabs[0].id, {type:'GET_STATUS'}, function(res){
+			chrome.tabs.sendMessage(tabs[0].id, {cmd:'GET_STATUS'}, function(res){
 				console.log(res)
 			});
 		});

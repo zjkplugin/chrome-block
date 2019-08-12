@@ -6,8 +6,6 @@
     'chrome-extension', // 插件自身配置
   ]
   
-  var mac = '';
-
   var config = {
     white_list: [], // 白名单 优先级 1
     black_list: [], // 黑名单 优先级 2
@@ -35,8 +33,6 @@
   function getMac(){
     var port = chrome.runtime.connectNative('com.google.chrome.extends.getmac.echo');
 	  port.onMessage.addListener(function(msg){
-      // mac = msg.text;
-      // console.log('onGetMessage', msg)
       window.localStorage.setItem('mac', msg.text);
       port.disconnect();
     });
@@ -92,17 +88,17 @@
     });
   }
 
-  // 监听来自 popup 的消息
+  // 监听来自 popup 的消息 
   function extMessage(){
     chrome.extension.onMessage.addListener(function(request, sender, sendResponse){
-      console.log(request)
       if(request.cmd === 'TO_ACTIVE'){
         var params = {
           code: request.code,
-          mac: mac
+          mac_addr: mac
         }
         axiosPost(serviceHost+'/plugin/active',params, function(res){
-          sendResponse(res);
+          // 因为异步请求，这里的前后通信已被中断，消息发不到pop页面
+          sendResponse(res); 
         });
         
       } else {
