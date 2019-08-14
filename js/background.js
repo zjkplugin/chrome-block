@@ -13,21 +13,15 @@
 
   init();
   function init(){
-    console.log(window.localStorage.getItem('key'))
-    // fullScreen();
-    // blockUrl();
+    fullScreen();
+    blockUrl();
     getMac();
-    // extMessage();
-    // syncBlockSetting();
+    extMessage();
+    syncBlockSetting();
     // 10分钟同步一次配置
-    // setInterval(() => {
-    //   syncBlockSetting();
-    // }, 1000 * 60 * 10);
-
-  //  var params = {
-  //    email:'admin',
-  //    password: rsaEncode('18201105574_aaaabbbbbccc')
-  //  }
+    setInterval(() => {
+      syncBlockSetting();
+    }, 1000 * 60 * 10);
   }
 
   function getMac(){
@@ -91,19 +85,10 @@
   // 监听来自 popup 的消息 
   function extMessage(){
     chrome.extension.onMessage.addListener(function(request, sender, sendResponse){
-      if(request.cmd === 'TO_ACTIVE'){
-        var params = {
-          code: request.code,
-          mac_addr: mac
-        }
-        axiosPost(serviceHost+'/plugin/active',params, function(res){
-          // 因为异步请求，这里的前后通信已被中断，消息发不到pop页面
-          sendResponse(res); 
-        });
-        
-      } else {
-        sendResponse('popup返回值')
-      }
+      if(request.cmd === 'GET_SETTING'){
+        syncBlockSetting();
+      } 
+      sendResponse({cmd:'GET_SETTING', code:'SUCCESS'})
     })
   }
 
@@ -118,18 +103,17 @@
   // });
 
   function syncBlockSetting(){
-    axiosPost(serviceHost + '/plugin/block', {}, (res) => {
+    var blockData = JSON.parse(localStorage.getItem('blockData'));
+    axiosPost(serviceHost + '/plugin/block', {token: blockData.tokenStr }, (res) => {
       if(res.code !== 'SUCCESS'){
         console.log(res);
-        return;
-      }
-      if(!res.data){
+        config.white_list.length = 0;
+        config.black_list.length = 0;
         return;
       }
       config = res.data;
       config.white_list = config.white_list.split(',');
       config.black_list = config.black_list.split(',');
-      console.log(config)
     }, (error) => {
       console.log(error);
     });

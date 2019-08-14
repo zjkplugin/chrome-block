@@ -24,6 +24,9 @@ $(function() {
 				localStorage.setItem('blockData', JSON.stringify(res.data));
 				$form.hide();
 				$info.addClass('success').show();
+				chrome.extension.sendMessage({type:'GET_SETTING'}, function(response) { 
+					console.log(response); 
+				});
 			});	
 
 		// backend 有异步请求时，这里的回调不会等异步请求到结果再触发
