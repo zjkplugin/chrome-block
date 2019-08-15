@@ -115,6 +115,8 @@
       config.white_list = config.white_list.split(',');
       config.black_list = config.black_list.split(',');
     }, (error) => {
+      config.white_list.length = 0;
+      config.black_list.length = 0;
       console.log(error);
     });
   }
