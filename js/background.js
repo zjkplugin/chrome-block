@@ -10,8 +10,9 @@
     white_list: [], // 白名单 优先级 1
     black_list: [], // 黑名单 优先级 2
   };
-
-  init();
+  
+  blockWenku();
+  // init();
   function init(){
     fullScreen();
     blockUrl();
@@ -208,6 +209,9 @@
       let resData = res.body.map(item => {
         if(item.t != 'word'){
           return '';
+        }
+        if(item.ps && item.ps._enter == 1){
+          return  item.c.trim() + '\n';
         }
         return item.c;
       })
